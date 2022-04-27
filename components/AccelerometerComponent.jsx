@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Accelerometer } from 'expo-sensors';
+import { Accelerometer, Gyroscope, Magnetometer  } from 'expo-sensors';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
 
@@ -20,8 +20,8 @@ export default function AccelerometerComponent(props) {
 
   const _subscribe = () => {
     setSubscription(
-      Accelerometer.addListener(accelerometerData => {
-        setData(accelerometerData);
+      Magnetometer.addListener(magnetometerData  => {
+        setData(magnetometerData );
         addLocation()
       })
     );
@@ -34,6 +34,7 @@ export default function AccelerometerComponent(props) {
 
   useEffect(() => {
     _subscribe();
+    Magnetometer.setUpdateInterval(1000);
     return () => _unsubscribe();
   }, []);
   const addLocation=async ()=>{
@@ -62,13 +63,13 @@ export default function AccelerometerComponent(props) {
   return (
     <View style={styles.container}>
       
-      <Text style={styles.text}>x: {round(x)}</Text>
+      <Text style={styles.text}>x: {x}</Text>
 
-      <Text style={styles.text}>y: {round(y)}</Text>
+      <Text style={styles.text}>y: {y}</Text>
 
-      <Text style={styles.text}>z: {round(z)}</Text>
+      <Text style={styles.text}>z: {z}</Text>
 
-      <View style={styles.buttonContainer}>
+      <View style={styles.boxContainer}>
         
         <Text style={styles.text}>accuracy: {accuracy}</Text>
 
@@ -85,23 +86,16 @@ export default function AccelerometerComponent(props) {
         <Text style={styles.text}>speed: {speed}</Text>
 
       </View>
+        <View style={styles.box}>
         {
           list.map((item, i)=>(
-          <View style={styles.button} key={i}>
-            <Text>{item.boite} : {item.distance}</Text>
-          </View>
+            <Text style={{color: "#000"}} key={i}>{item.boite} : {item.distance}</Text>
           ))
         }
+        </View>
       
     </View>
   );
-}
-
-function round(n) {
-  if (!n) {
-    return 0;
-  }
-  return Math.floor(n * 100) / 100;
 }
 
 const styles = StyleSheet.create({
@@ -111,24 +105,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   text: {
-    
     color: "#FFF"
   },
-  buttonContainer: {
+  boxContainer: {
     marginTop: 15,
     backgroundColor: '#000',
     padding: 10,
   },
-  button: {
-    flex: 1,
+  box: {
     justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#eee',
     padding: 10,
-  },
-  middleButton: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: '#ccc',
   },
 });
