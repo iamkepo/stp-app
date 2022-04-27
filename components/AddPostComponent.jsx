@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { StyleSheet, View, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { AntDesign, Entypo } from 'react-native-vector-icons';
 
