@@ -12,7 +12,8 @@ import { checkversion, getposts } from "../utils/sender";
 import { normalize } from "../utils/fonts";
 
 import AddPostComponent from '../components/AddPostComponent';
-import AccelerometerComponent from '../components/AccelerometerComponent';
+import CompassComponent from '../components/CompassComponent';
+import TrackingComponent from '../components/TrackingComponent';
 
 
 const mapDispatchToProps = dispatch => (
@@ -113,7 +114,8 @@ class HomeScreen extends React.Component {
             this.camera = ref;
           }}
         >
-          <AccelerometerComponent list={test_posts_list} />
+          {/* <CompassComponent /> */}
+          <TrackingComponent list={test_posts_list} />
         </Camera>
 
         <AddPostComponent navigation={this.navigation} />
