@@ -31,7 +31,7 @@ export default function TrackingComponent(props) {
   
   return (
     <View style={styles.container}>
-        <Text style={styles.text}>{position}</Text>
+        <Text style={{color: "#FFF"}}>{position}</Text>
 
       <View style={styles.boxcontainer}>
         {

@@ -2,9 +2,6 @@
 import React from 'react';
 import { View, Dimensions, Text, TouchableOpacity, BackHandler, Image, TextInput, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { Entypo, Ionicons, AntDesign } from 'react-native-vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import { Camera } from 'expo-camera';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -12,9 +9,6 @@ import { setStateAction } from '../store/ActivityActions';
 
 import { normalize } from "../utils/fonts";
 import { post, repost, setpost } from "../utils/sender";
-
-
-import LoaderComponent from "../components/LoaderComponent";
 
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
@@ -39,7 +33,6 @@ class UploadScreen extends React.Component {
       step: 0,
       uri: false,
       loader: false,
-      cameraOriantation: Camera.Constants.Type.back
     }
     this.navigation = this.props.navigation;
     this.route = this.props.route;

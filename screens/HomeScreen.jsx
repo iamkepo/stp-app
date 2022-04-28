@@ -103,7 +103,9 @@ class HomeScreen extends React.Component {
           >
             <AntDesign name="user" size={25} color="#FFF"/>
           </TouchableOpacity>
-          <View style={styles.groupicon}></View>
+          <View style={styles.groupicon}>
+            
+          </View>
         </View>
 
         <Camera 
@@ -114,7 +116,7 @@ class HomeScreen extends React.Component {
             this.camera = ref;
           }}
         >
-          {/* <CompassComponent /> */}
+          <CompassComponent />
           <TrackingComponent list={test_posts_list} />
         </Camera>
 
