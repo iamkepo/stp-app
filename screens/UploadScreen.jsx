@@ -46,17 +46,6 @@ class UploadScreen extends React.Component {
     this.camera = null;
   }
 
-  generateThumbnail = async () => {
-    try {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(
-        this.route.params.post.uri,
-        { time: 1 }
-      );
-      this.setState({uri: uri});
-    } catch (e) {
-      this.generateThumbnail()
-    }
-  };
 
   backAction = () => {
     this.back();
@@ -67,40 +56,7 @@ class UploadScreen extends React.Component {
    this.backHandler.remove();
   }
 
-  async init(){
-    if (this.route.params.post.uri != undefined) {
-      this.setState({
-        file: this.route.params.post,
-        description: this.route.params.post.description,
-        step: 2
-      });
-      if (this.route.params.post.type == "video") {
-        this.generateThumbnail();
-      }
-    } else {
-      switch (this.route.params.post.type) {
-        case "picture":
-          this.pickImage(ImagePicker.MediaTypeOptions.Images);
-          this.setState({step: 1});
-          break;
-
-        case "video":
-          this.pickImage(ImagePicker.MediaTypeOptions.Videos);
-          this.setState({step: 1});
-          break;
-      
-        default:
-          const { status } = await Camera.requestCameraPermissionsAsync();
-          const { status1 } = await Camera.requestMicrophonePermissionsAsync();
-          this.setState({step: 0});
-          break;
-      }
-    }
-  }
   componentDidMount(){
-    //console.log(this.route.params.post);
-    
-    this.init();
 
     this.backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -108,187 +64,64 @@ class UploadScreen extends React.Component {
     );
   }
 
-  runCamera = async () => {
-    if (this.camera) {
-      let video = await this.camera.recordAsync({maxDuration: 30});
-      //console.log(video);
-      this.setState({loader: true});
-      video.type = "video";
-      this.setState({file: video, step: 1, loader: false})
-    }
-  }
-  snap = async () => {
-    if (this.camera) {
-      this.setState({loader: true});
-      let photo = await this.camera.takePictureAsync();
-      //console.log(photo);
-      photo.type = "image";
-      this.setState({file: photo, step: 1, loader: false})
-    }
-  };
-  async pickImage(type) {
-    let photo = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: type,
-      allowsEditing: false,
-      quality: 1,
-    });
-
-    //console.log(photo);
-    if (photo.cancelled == false) {
-      this.setState({file: photo})
-    }
-
-  };
-
   back() {
-    if (this.state.step > 0) {
-      if (this.state.step == 1 && 
-        (this.route.params.post.type == "picture" || 
-        this.route.params.post.type == "video" ||
-        this.route.params.post.type == "image")) {
-        this.navigation.goBack()
-      }else{this.setState({step: this.state.step-1})}
-    } else {
-      this.navigation.goBack()
-    }
+    this.navigation.goBack()
   }
   postter(){
     this.setState({loader: true});
     var data = {
-      file: this.state.file,
       user: this.props.data.user,
       description: this.state.description,
     };
-    if (this.state.file.uri[0] != "h") {
-      post(data).then( (response)=> {
-        // console.log(response.data);
-        this.navigation.reset({ index: 0, routes: [{ name: 'MainNavigator' }]});
-      })
-      .catch( (error)=> {
-        console.log("post: "+error);
-      });
-    } else {
-      repost(data).then( (response)=> {
-        //console.log(response.data);
-        setpost({ post_id: this.route.params.post._id, option: "share", value: this.props.data.user._id});
-        this.navigation.reset({ index: 0, routes: [{ name: 'MainNavigator' }]});
-      })
-      .catch( (error)=> {
-        console.log("repost: "+error);
-      });
-    }
+
+    post(data).then( (response)=> {
+      // console.log(response.data);
+      this.navigation.reset({ index: 0, routes: [{ name: 'MainNavigator' }]});
+    })
+    .catch( (error)=> {
+      this.setState({loader: false});
+      alert(error);
+    });
 
   }
 	render() {
 		return (
-			<View style={{ width: "100%", height: "100%", backgroundColor: "#000", alignItems: "center",  justifyContent: "flex-start", position: "relative" }}>
+			<View style={{ width: "100%", height: "100%", backgroundColor: "#FFF", alignItems: "center",  justifyContent: "flex-start", position: "relative" }}>
         <View style={{ width: "95%", height: 50, alignItems: "center", flexDirection: "row", justifyContent: "space-between"}}>
           <TouchableOpacity onPress={()=> this.back()}>
-            <Ionicons name="arrow-back" size={30} color="#FFF"/>
+            <Ionicons name="arrow-back" size={30} color="#2F80ED"/>
           </TouchableOpacity>
           
-          <Text style={{width: "80%",fontSize: normalize(20), fontWeight: "bold", color: "#FFF", }}>
+          <Text style={{width: "80%",fontSize: normalize(20), fontWeight: "bold", color: "#000", }}>
             New Poste
           </Text>
         </View>
-        {
-          this.state.step == 0 &&
-          <View style={{ width: "100%", height: "90%", alignItems: "center", justifyContent: "space-between" }}>
-            <Camera 
-              style={{ width: "100%", height: "90%", alignItems: "center", justifyContent: "center" }} 
-              type={this.state.cameraOriantation}
-              ratio="4:6"
-              ref={ref => {
-                this.camera = ref;
-              }}
-            >
-              <TouchableOpacity
-                style={{width: "100%", height: "100%"}}
-                onPress={() => {
-                  this.setState({cameraOriantation:
-                    this.state.cameraOriantation === Camera.Constants.Type.back
-                      ? Camera.Constants.Type.front
-                      : Camera.Constants.Type.back
-                  });
-                }}>
-              </TouchableOpacity>
-            </Camera>
-            { this.route.params.post.type == "camera" &&
-              <TouchableOpacity 
-                onPress={()=> this.snap()} 
-                style={{width: 60, height: 60, alignItems: "center", justifyContent: "center", backgroundColor: "#FFF", borderRadius: 50, borderColor:"#F00", borderWidth: 3 }}
-              >
-                <Entypo name="camera" size={25} color="#000"/>
-              </TouchableOpacity>
-            }
-            { this.route.params.post.type == "video-camera" &&
-              <LoaderComponent runCamera={()=> this.runCamera()} stopCamera={()=> this.camera.stopRecording()} />
-            }
-          </View>
-        }
-        {
-          this.state.step == 1 &&
-          <View  style={{ width: "100%", height: "90%", alignItems: "center", justifyContent: "flex-start" }}>
+        <View  style={{ width: "100%", height: "90%", alignItems: "center", justifyContent: "flex-start" }}>
 
-            <TouchableOpacity onPress={()=> this.init()}  style={styles.cadre}>
-              {
-                (this.state.file.uri != undefined || this.state.uri) ?
-                <Image
-                  source={{ uri: this.state.uri ? this.state.uri : this.state.file.uri  }}
-                  style={{ width: "100%", height: "100%" }}
-                  resizeMode="contain"
-                />
-                :
-                <AntDesign name="picture" size={25} color="#FFF"/>
-              }
-            </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            onChangeText={(text)=> this.setState({description: text})}
+            value={this.state.description}
+            multiline={true}
+            autoFocus={true}
+            textAlignVertical="top"
+            keyboardType="default"
+            placeholder="Ecrivez votre legende ici ..."
+            placeholderTextColor={"#2F80ED"}
+          />
 
-            <TouchableOpacity
-              disabled={this.state.file.uri != undefined ? false : true}
-              onPress={()=> this.setState({step: 2})}
-              style={{
-                backgroundColor: this.state.file.uri != undefined ? "#BB0000" : "#555",
-                width: "95%",height:50,justifyContent: "center",borderRadius: 50,marginTop: "15%"
-              }}
-            >
-              <Text style={{ color: "#FFF", fontSize: normalize(14), textAlign: "center" }}>Suivant</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            onPress={()=> this.postter()}
+            style={styles.newpost}
+          >
 
-          </View>
-        }
-        {
-          this.state.step == 2 &&
-          <View  style={{ width: "100%", height: "90%", alignItems: "center", justifyContent: "flex-start" }}>
-
-            <Text style={{width: "95%", marginVertical: "5%", textAlign: "center",fontSize: normalize(18), fontWeight: "bold", color: "#FFF", }}>
-              Cliquer dans le champ pour ajouter une description
+            <Text style={{ color: "#FFF", fontSize: normalize(14), textAlign: "center" }}>
+              Publier
             </Text>
 
-            <TextInput
-              style={styles.input}
-              onChangeText={(text)=> this.setState({description: text})}
-              value={this.state.description}
-              multiline={true}
-              autoFocus={true}
-              textAlignVertical="top"
-              keyboardType="default"
-              placeholder="Ecrivez votre legende ici ..."
-              placeholderTextColor={"#FFF"}
-            />
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={()=> this.postter()}
-              style={styles.newpost}
-            >
-
-              <Text style={{ color: "#FFF", fontSize: normalize(14), textAlign: "center" }}>
-                Publier
-              </Text>
-
-            </TouchableOpacity>
-
-          </View>
-        }
+        </View>
         { this.state.loader &&
           <View style={styles.loader}>
             <ActivityIndicator size="large" color="F00" />
@@ -306,31 +139,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: "#000",
-  },
-  cadre: {
-    width: "95%",
-    height: "60%",
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#FFF",
-    marginVertical: "5%",
-    overflow: "hidden"
+    backgroundColor: "#FFF",
   },
   input: {
     width: "95%",
     height: "20%",
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#FFF",
+    borderColor: "#000",
     marginVertical: "5%",
-    color: "#FFF",
+    color: "#000",
     padding: 10
   },
   newpost: {
-    backgroundColor: "#BB0000",
+    backgroundColor: "#2F80ED",
     width: "95%",
     height:50,
     justifyContent: "center",

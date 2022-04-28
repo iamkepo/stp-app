@@ -3,21 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Location from 'expo-location';
 import { getDistance, getCompassDirection } from 'geolib';
 
-let client = {
-  user: {},
-  location: null
-};
-
 export default function TrackingComponent(props) {
-  const [location, setLocation] = React.useState({
-    accuracy: 0,
-    altitude: 0,
-    altitudeAccuracy: 0,
-    heading: 0,
-    latitude: 0,
-    longitude: 0,
-    speed: 0,
-  });
+  const [position, setposition] = useState([]);
   const [list, setlist] = useState([]);
 
   useEffect(async() => {
@@ -25,61 +12,39 @@ export default function TrackingComponent(props) {
     var loc = Location.watchPositionAsync({
       accuracy: Location.Accuracy.Highest,
       distanceInterval: 1,
-      timeInterval: 5000,
+      timeInterval: 500,
+      mayShowUserSettingsDialog: true
     }, (response) => {
-      //console.log(response.coords)
-      addLocation(response.coords)
+      finder(response.coords);
+      setposition(response.coords.accuracy);
     });
-    return async () => await location.remove();
+    return async () => await loc.remove();
   }, []);
 
-  const addLocation =  async (coords)=>{
-    setLocation(coords),
+  const finder =  async (coords)=>{
     props.list.forEach(item => {
       item.distance = getDistance(coords, item.coords);
       item.compass = getCompassDirection(coords, item.coords)
     });
     setlist(props.list.sort(function(a, b){return a.distance - b.distance }))
   }
-  const getDirection = (coords1, coords2) => {
-    var PI = Math.PI;
-    var dTeta = Math.log(Math.tan((coords2.latitude/2)+(PI/4))/Math.tan((coords1.latitude/2)+(PI/4)));
-    var dLon = Math.abs(coords1.longitude-coords2.longitude);
-    var teta = Math.atan2(dLon,dTeta);
-    var direction = Math.round((teta * 180 / Math.PI));
-    return direction;
-  }
-  const {accuracy, altitude, altitudeAccuracy, heading, latitude, longitude, speed} = location;
+  
   return (
     <View style={styles.container}>
+        <Text style={styles.text}>{position}</Text>
 
-      <View style={styles.box}>
+      <View style={styles.boxcontainer}>
         {
           list.map((item, i)=>(
-            <Text style={{color: "#000"}} key={i}>
-              {item.boite} : {item.distance} {" -> "} {item.compass}
-            </Text>
+            (item.compass.search("S") != -1 && item.distance <= 100) ?
+            <TouchableOpacity style={[styles.box, {zIndex: list.length}]} key={i}>
+              <Text style={styles.text}>
+                {item.boite} : {item.distance} {" -> "} {item.compass}
+              </Text>
+            </TouchableOpacity>
+            : false
           ))
         }
-      </View>
-
-      <View style={styles.boxContainer}>
-        
-
-        <Text style={styles.text}>accuracy: {accuracy}</Text>
-
-        <Text style={styles.text}>altitude: {altitude}</Text>
-
-        <Text style={styles.text}>altitudeAccuracy: {altitudeAccuracy}</Text>
-
-        <Text style={styles.text}>heading: {heading}</Text>
-
-        <Text style={styles.text}>latitude: {latitude}</Text>
-
-        <Text style={styles.text}>longitude: {longitude}</Text>
-
-        <Text style={styles.text}>speed: {speed}</Text>
-
       </View>
       
     </View>
@@ -88,10 +53,22 @@ export default function TrackingComponent(props) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  boxcontainer: {
+    width: "100%",
+    height: "100%",
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 10,
-    shadowColor: '#000',
+    position: "relative",
+  },
+  box: {
+    position: "absolute",
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: '#eee',
+    shadowColor: '#2F80ED',
     shadowRadius: 5,
     shadowOffset: {
       height: 10,
@@ -101,16 +78,6 @@ const styles = StyleSheet.create({
     elevation : 10,
   },
   text: {
-    color: "#FFF"
-  },
-  boxContainer: {
-    marginTop: 15,
-    backgroundColor: '#000',
-    padding: 10,
-  },
-  box: {
-    justifyContent: 'center',
-    backgroundColor: '#eee',
-    padding: 10,
+    color: "#000",
   },
 });

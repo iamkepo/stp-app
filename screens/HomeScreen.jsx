@@ -94,7 +94,7 @@ class HomeScreen extends React.Component {
   render(){
     return (
       <SafeAreaView style={styles.container}>
-        <StatusBar backgroundColor="#000" barStyle="light-content" />
+        <StatusBar backgroundColor="#FFF" barStyle="dark-content" />
 
         <View style={styles.boxaction} >
           <TouchableOpacity
@@ -107,7 +107,7 @@ class HomeScreen extends React.Component {
         </View>
 
         <Camera 
-          style={{ width: "100%", height: "80%", alignItems: "center", justifyContent: "center" }} 
+          style={{ width: "100%", height: "85%", alignItems: "center", justifyContent: "center" }} 
           type={Camera.Constants.Type.back}
           ratio="4:6"
           ref={ref => {
@@ -185,9 +185,9 @@ const test_posts_list = [
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: "#000",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    backgroundColor: "#FFF",
   },
   boxaction: {
     width: "100%",
@@ -196,18 +196,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'center',
     justifyContent: "space-between",
-    position: "absolute",
-    top: 0,
-    zIndex: 5,
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-    paddingHorizontal: "5%"
   },
   profil: {
     width: 40,
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#F00",
+    backgroundColor: "#2F80ED",
     borderRadius: 50,
     shadowColor: '#000',
     shadowRadius: 5,
