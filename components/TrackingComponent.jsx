@@ -3,7 +3,22 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as Location from 'expo-location';
 import { getDistance, getCompassDirection } from 'geolib';
 
-export default function TrackingComponent(props) {
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setStateAction } from '../store/ActivityActions';
+
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    setStateAction
+  }, dispatch)
+);
+
+const mapStateToProps = (state) => {
+  const { data } = state
+  return { data }
+};
+
+function TrackingComponent(props) {
   const [position, setposition] = useState([]);
   const [list, setlist] = useState([]);
 
@@ -28,7 +43,7 @@ export default function TrackingComponent(props) {
     });
     setlist(props.list.sort(function(a, b){return a.distance - b.distance }))
   }
-  
+
   return (
     <View style={styles.container}>
         <Text style={{color: "#FFF"}}>{position}</Text>
@@ -36,10 +51,10 @@ export default function TrackingComponent(props) {
       <View style={styles.boxcontainer}>
         {
           list.map((item, i)=>(
-            (item.compass.search("S") != -1 && item.distance <= 100) ?
+            (item.distance <= 100) ?
             <TouchableOpacity style={[styles.box, {zIndex: list.length}]} key={i}>
               <Text style={styles.text}>
-                {item.boite} : {item.distance} {" -> "} {item.compass}
+                {item.boite} : {item.distance} {" -> "} {item.compass} = {props.data.etat.direction}
               </Text>
             </TouchableOpacity>
             : false
@@ -81,3 +96,4 @@ const styles = StyleSheet.create({
     color: "#000",
   },
 });
+export default connect(mapStateToProps, mapDispatchToProps)(TrackingComponent);

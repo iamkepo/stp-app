@@ -3,9 +3,23 @@ import { Image, View, Text, Dimensions } from 'react-native';
 import { Grid, Col, Row } from 'react-native-easy-grid';
 import { Magnetometer } from 'expo-sensors';
 
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { setStateAction } from '../store/ActivityActions';
+
+const mapDispatchToProps = dispatch => (
+  bindActionCreators({
+    setStateAction
+  }, dispatch)
+);
+
+const mapStateToProps = (state) => {
+  const { data } = state
+  return { data }
+};
 const { height, width } = Dimensions.get('window');
 
-export default CompassComponent = (props) => {
+const CompassComponent = (props) => {
 
   const [subscription, setSubscription] = useState(null);
   const [magnetometer, setMagnetometer] = useState(0);
@@ -29,6 +43,7 @@ export default CompassComponent = (props) => {
     setSubscription(
       Magnetometer.addListener((data) => {
         setMagnetometer(_angle(data));
+        props.setStateAction("direction", _direction(_degree(magnetometer)))
       })
     );
   };
@@ -85,7 +100,15 @@ export default CompassComponent = (props) => {
 
   return (
 
-    <Grid style={{ width: "100%", height: "100%", position: "absolute", zIndex:6 }}>
+    <Grid 
+      style={{ 
+        width: "100%", 
+        height: "100%", 
+        position: "absolute", 
+        zIndex:6,
+        transform: [{perspective: 100}]
+      }}
+    >
       <Row style={{ alignItems: 'center' }} size={.9}>
         <Col style={{ alignItems: 'center' }}>
           <Text
@@ -134,13 +157,11 @@ export default CompassComponent = (props) => {
         </Col>
       </Row>
 
-      <Row style={{ alignItems: 'center' }} size={1}>
-        <Col style={{ alignItems: 'center' }}>
-          <Text style={{ color: '#fff' }}>Copyright @RahulHaque</Text>
-        </Col>
-      </Row>
+   
 
     </Grid>
 
   );
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(CompassComponent);

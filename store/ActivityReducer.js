@@ -5,7 +5,9 @@ const INITIAL_STATE = {
   etat: {
     bgcolor: "#000",
     textcolor: "#FFF",
-    theme: "#F00"
+    theme: "#F00",
+    direction: "",
+    location: {}
   },
   posts: []
 };
