@@ -6,6 +6,7 @@ import { getDistance, getCompassDirection } from 'geolib';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setStateAction } from '../store/ActivityActions';
+import { transform } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes';
 
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
@@ -27,11 +28,11 @@ function TrackingComponent(props) {
     var loc = Location.watchPositionAsync({
       accuracy: Location.Accuracy.Highest,
       distanceInterval: 1,
-      timeInterval: 500,
+      timeInterval: 100,
       mayShowUserSettingsDialog: true
     }, (response) => {
       finder(response.coords);
-      setposition(response.coords.accuracy);
+      props.setStateAction("location", response);
     });
     return async () => await loc.remove();
   }, []);
@@ -51,10 +52,19 @@ function TrackingComponent(props) {
       <View style={styles.boxcontainer}>
         {
           list.map((item, i)=>(
-            (item.distance <= 100) ?
-            <TouchableOpacity style={[styles.box, {zIndex: list.length}]} key={i}>
+            item.compass.search(props.orientation) != -1 ?
+            <TouchableOpacity 
+              style={[
+                styles.box, 
+                {
+                  zIndex: list.length,
+                  //transform: [{translateY}]
+                },
+              ]} 
+              key={i}
+            >
               <Text style={styles.text}>
-                {item.boite} : {item.distance} {" -> "} {item.compass} = {props.data.etat.direction}
+                {item.boite} : {item.distance} {" -> "} {item.compass} - {i}
               </Text>
             </TouchableOpacity>
             : false

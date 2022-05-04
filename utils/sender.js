@@ -52,18 +52,30 @@ export async function post({file, user, description}) {
   });
 }
 
-export function repost({file, user, description}) {
-  return axios({
-    method: 'post',
-    url: baseURL+"/repost",
-    data: {
-      source_id : file.source_id ? file.source_id : user._id,
-      user : { _id: user._id, photo: user.photo, psoeudo: user.psoeudo },
-      description : description,
-      uri: file.uri,
-      type : file.type,
+export function repost({file, user, description, location}) {
+  var data = JSON.stringify({
+    "dataSource": "Cluster0",
+    "database": "stp",
+    "collection": "posts",
+    "document": {
+      "description": description,
+      "location": location,
     }
-  })
+  });
+              
+  var config = {
+      method: 'post',
+      url: 'https://data.mongodb-api.com/app/data-avpsb/endpoint/data/beta/action/insertOne',
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Request-Headers': '*',
+        'api-key': '62697f1e3de634876cfb4626'
+      },
+      data : data
+  };
+              
+  
+  return axios(config)
 }
 
 export function setpost({post_id, option, value}) {

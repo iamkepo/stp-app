@@ -63,19 +63,20 @@ class UploadScreen extends React.Component {
   postter(){
     this.setState({loader: true});
     var data = {
+      file: undefined,
       user: this.props.data.user,
       description: this.state.description,
+      location: this.props.data.etat.location
     };
-
-    post(data).then( (response)=> {
+    repost(data).then( (response)=> {
       // console.log(response.data);
+      console.log(JSON.stringify(response.data));
       this.navigation.reset({ index: 0, routes: [{ name: 'MainNavigator' }]});
     })
     .catch( (error)=> {
       this.setState({loader: false});
-      alert(error);
+      console.log(error);
     });
-
   }
 	render() {
 		return (

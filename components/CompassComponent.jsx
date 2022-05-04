@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { setStateAction } from '../store/ActivityActions';
 
+import TrackingComponent from '../components/TrackingComponent';
+
 const mapDispatchToProps = dispatch => (
   bindActionCreators({
     setStateAction
@@ -43,7 +45,6 @@ const CompassComponent = (props) => {
     setSubscription(
       Magnetometer.addListener((data) => {
         setMagnetometer(_angle(data));
-        props.setStateAction("direction", _direction(_degree(magnetometer)))
       })
     );
   };
@@ -93,7 +94,6 @@ const CompassComponent = (props) => {
     }
   };
 
-  // Match the device top with pointer 0° degree. (By default 0° starts from the right of the device.)
   const _degree = (magnetometer) => {
     return magnetometer - 90 >= 0 ? magnetometer - 90 : magnetometer + 271;
   };
@@ -106,19 +106,11 @@ const CompassComponent = (props) => {
         height: "100%", 
         position: "absolute", 
         zIndex:6,
-        transform: [{perspective: 100}]
       }}
     >
       <Row style={{ alignItems: 'center' }} size={.9}>
         <Col style={{ alignItems: 'center' }}>
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: height / 26,
-              fontWeight: 'bold'
-            }}>
-            {_direction(_degree(magnetometer))}
-          </Text>
+          <TrackingComponent list={test_posts_list} orientation={_direction(_degree(magnetometer))} />
         </Col>
       </Row>
 
@@ -164,4 +156,62 @@ const CompassComponent = (props) => {
   );
 }
 
+const test_posts_list = [
+  {
+    coords: {
+      accuracy: 21.600000381469727,
+      altitude: 29.399999618530273,
+      altitudeAccuracy: 3.396122455596924,
+      heading: 0,
+      latitude: 6.377897,
+      longitude: 2.4608071,
+      speed: 0,
+    },
+    boite: "avant",
+    mocked: false,
+    timestamp: 1651051280837,
+  },
+  {
+    coords: {
+      accuracy: 20,
+      altitude: 29.399999618530273,
+      altitudeAccuracy: 2.21551775932312,
+      heading: 263.7195129394531,
+      latitude: 6.3778964,
+      longitude: 2.4608012,
+      speed: 0.06779343634843826,
+    },
+    boite: "centre",
+    mocked: false,
+    timestamp: 1651051288709,
+  },
+  {
+    coords: {
+      accuracy: 20.100000381469727,
+      altitude: 29.399999618530273,
+      altitudeAccuracy: 2.958400011062622,
+      heading: 0,
+      latitude: 6.3778969,
+      longitude: 2.4608033,
+      speed: 0,
+    },
+    boite: "arrière",
+    mocked: false,
+    timestamp: 1651051382473,
+  },
+  {
+    coords: {
+      accuracy: 20,
+      altitude: 29.399999618530273,
+      altitudeAccuracy: 2.21551775932312,
+      heading: 0,
+      latitude: 6.3778963,
+      longitude: 2.4608,
+      speed: 0,
+    },
+    boite: "cote",
+    mocked: false,
+    timestamp: 1651051410904,
+  },
+]
 export default connect(mapStateToProps, mapDispatchToProps)(CompassComponent);
